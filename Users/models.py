@@ -32,6 +32,7 @@ class UserManager(BaseUserManager):
 
 class Users(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, db_index=True)
+    userid=models.CharField(max_length=255,default=0)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -42,6 +43,8 @@ class Users(AbstractBaseUser, PermissionsMixin):
     history=models.TextField( default=" ")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    reason_a= models.CharField(max_length=3000,default='')
+    apply_equip_id=models.IntegerField(default=0)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

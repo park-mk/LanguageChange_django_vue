@@ -24,21 +24,21 @@
     <autoscroll-from-editor value="true" />
     <show-object-properties value="false" />
     <loaded-nodes>
-      <connection connection-id="de03cc3f-8084-4c75-8fdc-b8a609cd7d3c">
+      <connection connection-id="3c7c4def-6097-401c-8f59-b9a3bf23d43b">
         <schema name="main" object-types="column, index, dataset trigger, table, view" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
-    <connection id="de03cc3f-8084-4c75-8fdc-b8a609cd7d3c">
-      <console name="Connection3" type="STANDARD" schema="main" session="Main" />
+    <connection id="3c7c4def-6097-401c-8f59-b9a3bf23d43b">
+      <console name="Connection2" type="STANDARD" schema="main" session="Main" />
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
     <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
-    <connection id="de03cc3f-8084-4c75-8fdc-b8a609cd7d3c" />
+    <connection id="3c7c4def-6097-401c-8f59-b9a3bf23d43b" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
@@ -63,9 +63,9 @@
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
-      <connection id="de03cc3f-8084-4c75-8fdc-b8a609cd7d3c" active="true">
+      <connection id="3c7c4def-6097-401c-8f59-b9a3bf23d43b" active="true">
         <database>
-          <name value="Connection3" />
+          <name value="Connection2" />
           <description value="" />
           <database-type value="SQLITE" />
           <config-type value="BASIC" />
