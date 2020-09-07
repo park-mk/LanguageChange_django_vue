@@ -45,6 +45,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
     reason_a= models.CharField(max_length=3000,default='')
     apply_equip_id=models.IntegerField(default=0)
+    noti_count=models.IntegerField(default=0)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
