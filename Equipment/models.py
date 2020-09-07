@@ -2,15 +2,23 @@ from django.db import models
 
 # we create value model in model
 class Equip(models.Model):
-    name = models.CharField(max_length=10)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.IntegerField(default=0)
+    #origin info
+    id = models.AutoField(primary_key=True,unique=True)
+    name = models.CharField(max_length=50)
+    is_active = models.BooleanField(default=False)
     is_rent = models.BooleanField(default=False)
-    is_apply_a = models.BooleanField(default=False)
-    is_apply_b = models.BooleanField(default=False)
-    history = models.TextField(default=" ")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    is_on = models.BooleanField(default=False)
+    description = models.CharField(default='',max_length=50)
+    location = models.CharField(default='',max_length=50)
+    phone_number = models.CharField(default='',max_length=50)
+    provider_id = models.IntegerField(default=0)
+    created_at = models.DateTimeField(null=True, blank=True)
+    # following user info
+    reason = models.CharField(default='',max_length=200)
+    rent_start = models.DateTimeField(null=True, blank=True)
+    rent_exp = models.DateTimeField(null=True, blank=True)
+    rent_user_name = models.CharField(default='',max_length=50)
+    rent_user_id = models.IntegerField(default=0)
 
 
 

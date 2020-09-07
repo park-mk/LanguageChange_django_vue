@@ -3,6 +3,6 @@ from . import views
 
 
 urlpatterns = [
-      url('wo', views.equip_list),
+      url('add', views.equip_list),
       url('wa',views.equip),
   ]

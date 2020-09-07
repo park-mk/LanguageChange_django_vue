@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DBNavigator.Project.DataEditorManager">
     <record-view-column-sorting-type value="BY_INDEX" />
-    <value-preview-text-wrapping value="true" />
+    <value-preview-text-wrapping value="false" />
     <value-preview-pinned value="false" />
   </component>
   <component name="DBNavigator.Project.DataExportManager">
@@ -24,21 +24,21 @@
     <autoscroll-from-editor value="true" />
     <show-object-properties value="false" />
     <loaded-nodes>
-      <connection connection-id="c3f0e8f7-e84c-487e-b8b6-b644908b70db">
-        <schema name="main" object-types="view, table" />
+      <connection connection-id="de03cc3f-8084-4c75-8fdc-b8a609cd7d3c">
+        <schema name="main" object-types="column, index, dataset trigger, table, view" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
-    <connection id="c3f0e8f7-e84c-487e-b8b6-b644908b70db">
-      <console name="Connection1" type="STANDARD" schema="main" session="Main" />
+    <connection id="de03cc3f-8084-4c75-8fdc-b8a609cd7d3c">
+      <console name="Connection3" type="STANDARD" schema="main" session="Main" />
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
     <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
-    <connection id="c3f0e8f7-e84c-487e-b8b6-b644908b70db" />
+    <connection id="de03cc3f-8084-4c75-8fdc-b8a609cd7d3c" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
@@ -63,9 +63,9 @@
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
-      <connection id="c3f0e8f7-e84c-487e-b8b6-b644908b70db" active="true">
+      <connection id="de03cc3f-8084-4c75-8fdc-b8a609cd7d3c" active="true">
         <database>
-          <name value="Connection1" />
+          <name value="Connection3" />
           <description value="" />
           <database-type value="SQLITE" />
           <config-type value="BASIC" />
