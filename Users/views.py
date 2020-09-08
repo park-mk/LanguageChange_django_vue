@@ -83,15 +83,20 @@ def login(request):
 
     return render(request, 'Users/login.html')
 
+@csrf_exempt
+def register_mail_post(request):
+
+    if request.method == 'POST':
+        #当在 api／register中有post 请求 输入{username: password: email :}d的时候 向指定的email发送认证email 并保证该email 可以重新
+        #跑动 新的函数 def user_verified
+        return HttpResponse({'data':'success'}, status=200)
+
+
+    return HttpResponse({'data':'fail'}, status=200)
+
 
 
 @csrf_exempt
-def chat_service(request):
-    if request.method == 'POST':
-        input1 = request.POST['input1']
-        print(input1)
-        output = dict()
-        output['response'] = "this is reply"
-        return HttpResponse(json.dumps(output), status=200)
-    else:
-        return render(request, 'Users/chat_t:wqest.html')
+def user_verified(request):
+    #当用户在自己的邮箱点击 认证token时会启动该函数 并将该user的 is_verified转换为 true
+    return HttpResponse({'data': 'succes'}, status=200)

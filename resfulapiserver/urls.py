@@ -3,10 +3,11 @@ from Users import views
 
 
 urlpatterns = [
-    url('users/<int:pk>/', views.user),
-    url('users/', views.user_list),
-    url('login/', views.login),
-    url('equip/', include('Equipment.urls')),
+    url('api/users/<int:pk>/', views.user),
+    url('api/users/', views.user_list),
+    url('api/login/', views.login),
+    url('api/register',views.register_mail_post),
+    url('api/equip/', include('Equipment.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 
