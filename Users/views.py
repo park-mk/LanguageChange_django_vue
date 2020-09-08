@@ -4,6 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Users
 from .serializers import UsersSerializer
 from rest_framework.parsers import JSONParser
+from django.contrib.auth.hashers import make_password,check_password
+
 from django.contrib.auth.models import User
 from rest_framework import generics, status
 
@@ -18,7 +20,7 @@ INVITATION = '5GH4T'             # 管理员邀请码
 
 # Create your views here.
 @csrf_exempt
-def user_list(request):
+def super_user_list(request):
     if request.method == 'GET':
         query_set = Users.objects.all()
         serializer = UsersSerializer(query_set, many=True)
@@ -29,11 +31,28 @@ def user_list(request):
         print("post!!")
         print(request)
         data = JSONParser().parse(request)
+        data['password']=make_password(data['password'])
         serializer = UsersSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+def super_del_user(request,id):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        search_name = data['userid']
+        try:
+            obj = Users.objects.get(userid=id)
+        except:
+            return JsonResponse({'status':'false','message':"no such user"}, status=500)
+            obj.delete()
+            serializer = UsersSerializer(obj)
+            return JsonResponse(serializer.data, status=200)
+        else:
+            print("fail!!")
+            return JsonResponse({'status':'false','message':"wrong pass word"}, status=500)
+
 
 
 @csrf_exempt
@@ -68,21 +87,23 @@ def user(request, pk):
 def login(request):
 
     if request.method == 'POST':
-        print('to here')
         data = JSONParser().parse(request)
-        search_name = data['name']
-        print('to here')
-        obj = Users.objects.get(name=search_name)
-        data = JSONParser().parse(request)
-        search_name = data['name']
-        obj = Users.objects.get(name=search_name)
+        search_name = data['userid']
+        try:
+            obj = Users.objects.get(userid=search_name)
+        except:
+            return JsonResponse({'status':'false','message':"no such user"}, status=500)
 
-        if data['phone_number'] == obj.phone_number :
+        print('??')
+
+        if check_password(data['password'],obj.password):
+            # if verified =false return haven't verified
             print("login!!!")
-            return HttpResponse(status=200)
+            serializer = UsersSerializer(obj)
+            return JsonResponse(serializer.data, status=200)
         else:
             print("fail!!")
-            return HttpResponse(status=401)
+            return JsonResponse({'status':'false','message':"wrong pass word"}, status=500)
 
 
     return render(request, 'Users/login.html')
