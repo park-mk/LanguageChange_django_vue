@@ -27,7 +27,7 @@ DEBUG = True
 
 AUTH_USER_MODEL = 'Users.Users'
 
-ALLOWED_HOSTS = ['0.0.0.0','127.0.0.1']
+ALLOWED_HOSTS = ['0.0.0.0','127.0.0.1','192.168.43.184','192.168.43.225']
 
 
 # Application definition
