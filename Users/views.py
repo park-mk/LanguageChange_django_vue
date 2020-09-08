@@ -115,10 +115,12 @@ def register_mail_post(request):
         # 验证是否注册管理员（邀请码的正确性）
         is_manager = False
         if invitation:
-            if invitation == INVITATION:
-            	is_manager = True
+            if Users.objects.filter(is_staff=1):        # 检测是否存在管理员账号
+                return HttpResponse('管理员账号已经被注册', status=200)
+            elif invitation == INVITATION:           # 检测邀请码是否一致
+                is_manager = True
             else:                # 如果填写了邀请码但不一致，返回错误
-            	return HttpResponse('邀请码错误', status=200)
+                return HttpResponse('邀请码错误', status=200)
 
         # 不能同时成为两个身份
         if is_manager and is_provider:
