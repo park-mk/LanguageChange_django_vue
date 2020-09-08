@@ -4,7 +4,7 @@ from Users import views
 
 urlpatterns = [
     url('api/users/<int:pk>/', views.user),
-    url('api/users/', views.super_user_list),
+    url('api/users/', views.user_list),
     url('api/login/', views.login),
     url('api/register',views.register_mail_post),
     url(r'^activate/(?P<token>\w+.[-_\w]*\w+.[-_\w]*\w+)/$', views.user_verified, name='activate'),
