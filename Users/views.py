@@ -15,7 +15,8 @@ from rest_framework.authtoken.models import Token
 
 from django.core.mail import send_mail      # 发送邮件模块
 from .utils import token_confirm
-DOMAIN = 'http://127.0.0.1:8000'
+DOMAIN = 'http://127.0.0.1:8000'        # 网站运行域
+INVITATION = '5GH4T'             # 管理员邀请码
 
 # Create your views here.
 @csrf_exempt
@@ -114,10 +115,15 @@ def register_mail_post(request):
         #当在 api／register中有post 请求 输入{username: password: email :}d的时候 向指定的email发送认证email 并保证该email 可以重新
         #跑动 新的函数 def user_verified
 
+        # invitation: 邀请码 只有有正确邀请码的注册用户才可以成为管理员
+        # is_provider: 是否注册成为提供者(可提供打勾选项)
+
         # 获取用户注册数据
         username = request.POST.get('username').strip()
         password = request.POST.get('password').strip()
         email = request.POST.get('email').strip()
+        invitation = request.POST.get('invitation').strip()
+        is_provider = request.POST.get('is_provider')
 
         # 验证是否注册过
         is_username_repeated = Users.objects.filter(username=username)
@@ -127,8 +133,25 @@ def register_mail_post(request):
         if is_email_repeated:
             return HttpResponse('该邮件已经被注册过，请重新注册', status=200)
 
-        # 插入数据
-        user = Users.objects.create_user(username=username, password=password, email=email)
+        # 验证是否注册管理员（邀请码的正确性）
+        is_manager = False
+        if invitation:
+            if invitation == INVITATION:
+            	is_manager = True
+            else:                # 如果填写了邀请码但不一致，返回错误
+            	return HttpResponse('邀请码错误', status=200)
+
+        # 不能同时成为两个身份
+        if is_manager and is_provider:
+            return HttpResponse('不能同时成为管理员和设备提供者', status=200)
+
+        # 确认注册信息有效后，插入数据
+        if is_manager:
+            user = Users.objects.create_superuser(username=username, password=password, email=email)
+        elif is_provider:
+            user = Users.objects.create_user(username=username, password=password, email=email, is_provider=True)
+        else:
+            user = Users.objects.create_user(username=username, password=password, email=email, is_provider=False)
 
         # 邮箱验证
         token = token_confirm.generate_validate_token(username)

@@ -8,7 +8,7 @@ from django.db import models
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, username, email, password=None):
+    def create_user(self, username, email, password=None, is_provider=False):
         if username is None:
             raise TypeError('Users should have a username')
         if email is None:
@@ -16,6 +16,12 @@ class UserManager(BaseUserManager):
 
         user = self.model(username=username, email=self.normalize_email(email))
         user.set_password(password)
+
+        if is_provider:
+            user.is_staff = 2      # 提供者
+        else:
+            user.is_staff = 3      # 一般用户
+
         user.save()
         return user
 
@@ -25,7 +31,7 @@ class UserManager(BaseUserManager):
 
         user = self.create_user(username, email, password)
         user.is_superuser = True
-        user.is_staff = True
+        user.is_staff = 1   # 管理者
         user.save()
         return user
 
