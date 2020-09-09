@@ -12,8 +12,8 @@ urlpatterns = [
     url('api/statusup/', views.super_update_user),
     url('api/statusdown/', views.super_downdate_user),
     url('api/deny_apply_a/', views.super_deny_apply),
-    path('api/delete', views.super_del_user),
-
+    path('api/delete/', views.super_del_user),
+    path('api/apply_userinfo/', views.super_view_rent_user_info),
     url('api/login/', views.login),
     url('api/register',views.register_mail_post),
     url(r'^activate/(?P<token>\w+.[-_\w]*\w+.[-_\w]*\w+)/$', views.user_verified, name='activate'),

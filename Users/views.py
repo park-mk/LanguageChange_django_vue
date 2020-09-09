@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Users
-from .serializers import UsersSerializer,UserStatusSerial
+from .serializers import UsersSerializer,UserStatusSerial,UserUpdateApplySerial
 from rest_framework.parsers import JSONParser
 
 from django.contrib.auth.hashers import make_password,check_password
@@ -52,19 +52,27 @@ def super_user_list(request):
 
 
 #这是管理者删除user的函数
+@csrf_exempt
 def super_del_user(request):
+    if request.method == 'DELETE':
+        record = Users.objects.get(id=22)
+        UsersSerializer().delete(record)
+        return JsonResponse({'SUCCESS': 'SUCCE??SS'}, status=201)
     if request.method == 'POST':
         data = JSONParser().parse(request)
-        if (check_password('0000', data['token'])):
-            data = JSONParser().parse(request)
+        if True: #(check_password('0000', data['token'])):
             search_name = data['userid']
             try:
+
                 obj = Users.objects.get(userid=data['userid'])
+                print(obj)
+
             except:
                 return JsonResponse({'status':'false','message':"no such user"}, status=500)
-            obj.delete()
-            serializer = UsersSerializer(obj)
-            return JsonResponse(serializer.data, status=200)
+            print('i will delete2', search_name)
+            UsersSerializer().delete(obj)
+
+            return JsonResponse({'d':'success'}, status=200)
         else:
             return HttpResponse({"error": "you are not super user"}, status=500)
 
@@ -159,6 +167,22 @@ def super_view_rent_user(request):
 
         else:
             return HttpResponse({"error":"you are not super user"}, status=500)
+
+@csrf_exempt
+def super_view_rent_user_info(request):
+
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        if (check_password('0000', data['token'])):
+            obj = Users.objects.get(userid=data['userid'])
+            serializer = UserUpdateApplySerial(obj)
+            print(serializer.data)
+
+            return JsonResponse(serializer.data, status=200)
+
+        else:
+            return HttpResponse({"error":"you are not super user"}, status=500)
+
 
 @csrf_exempt
 def send_user_status(request):

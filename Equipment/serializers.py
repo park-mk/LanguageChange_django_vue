@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Equip
-
+import datetime
 
 class EquipSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,7 +21,7 @@ class EquipSerializer(serializers.ModelSerializer):
     def delete(self, instance):
         instance.is_active = False
         instance.is_on = False
-        instance.save()
+        instance.delete()
         return instance
 
     def on(self, instance):
@@ -42,3 +42,30 @@ class EquipSerializer(serializers.ModelSerializer):
         #  to user noti +1 and
         instance.save()
         return instance
+
+
+class EquipStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equip
+        fields = ['id','name','phone_number','is_apply','is_on']
+
+    def on_status(self, instance):
+        instance.is_on = True
+        print('up')
+        instance.is_apply = False
+        instance.save()
+        return instance
+
+    def off_status(self, instance):
+        instance.is_on = False
+        instance.is_apply = False
+        instance.save()
+        return instance
+
+    def deny_apply(self, instance):
+        instance.is_apply = False
+        instance.save()
+        return instance
+
+
+

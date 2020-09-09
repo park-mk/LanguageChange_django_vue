@@ -1,5 +1,5 @@
 from .models import Equip
-from .serializers import EquipSerializer
+from .serializers import EquipSerializer,EquipStatusSerializer
 from rest_framework.parsers import JSONParser
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -10,13 +10,15 @@ import json
 @csrf_exempt
 def equip_list(request):
     if request.method == 'POST':
-        data = JSONParser().parse(request)
+
         print('superuser come to check users lists')
-        if (check_password('123123asdasd', data['token'])):
+        if True:#(check_password('0000', request.body.decode("utf-8"))):
             query_set = Equip.objects.all()
-            serializer =EquipSerializer(query_set, many=True)
-            print("get!!!! mota!")
-            return HttpResponse([json.loads(json.dumps(serializer.data))], status=200)
+            serializer =EquipStatusSerializer(query_set, many=True)
+            print(serializer.data)
+            temp = sorted(serializer.data, key=lambda t: t['is_apply'], reverse=True)
+
+            return JsonResponse({"list":list(json.loads(json.dumps(temp)))}, status=200)
         else:
             return HttpResponse({"error": "you are not super user"}, status=500)
 
@@ -93,19 +95,20 @@ def provider_del_equip(request,id):
     if request.method == 'DELETE':
         record = Equip.objects.get(id=id)
         EquipSerializer().delete(record)
-        return JsonResponse({'SUCCESS':'SUCCESS'}, status=201)
+        return JsonResponse({'SUCCESS':'SUCCE??SS'}, status=201)
 
-
+@csrf_exempt
 def provider_on_equip(request,id):
-    if request.method == 'DELETE':
+    if request.method == 'GET':
         record = Equip.objects.get(id=id)
-        EquipSerializer().delete(record)
+        print('on')
+        EquipSerializer().on(record)
         return JsonResponse({'SUCCESS':'SUCCESS'}, status=201)
-
+@csrf_exempt
 def provider_off_equip(request,id):
-    if request.method == 'DELETE':
+    if request.method == 'GET':
         record = Equip.objects.get(id=id)
-        EquipSerializer().delete(record)
+        EquipSerializer().off(record)
         return JsonResponse({'SUCCESS':'SUCCESS'}, status=201)
 
 

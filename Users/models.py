@@ -52,6 +52,10 @@ class Users(AbstractBaseUser, PermissionsMixin):
     reason_a= models.CharField(max_length=3000,default='')
     apply_equip_id=models.IntegerField(default=0)
     noti_count=models.IntegerField(default=0)
+    waiting_list=models.ManyToManyField('LIST',blank=True)
+    history_e = models.ManyToManyField('HIS',blank=True)
+
+
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -61,4 +65,22 @@ class Users(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+
+
+class LIST(models.Model):
+        name = models.CharField(max_length=30)
+        userid = models.CharField(max_length=30)
+
+        def __str__(self):
+            return self.name
+
+
+class HIS(models.Model):
+    name = models.CharField(max_length=30)
+    userid = models.CharField(max_length=30)
+    borrow_from =models.DateTimeField(blank=True)
+    borrow_til = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
 

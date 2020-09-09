@@ -6,8 +6,13 @@ class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = '__all__'
-       # fields = ['username','email','is_verified','is_active','created_at']
 
+       # fields = ['username','email','is_verified','is_active','created_at']
+    def delete(self, instance):
+        print(instance.userid, 'to herer')
+        instance.delete()
+        print('to herer')
+        return instance
 
 
 
@@ -34,6 +39,8 @@ class UserStatusSerial(serializers.ModelSerializer):
         instance.is_apply_a = False
         instance.save()
         return instance
+
+
 
 
 class UserUpdateApplySerial(serializers.ModelSerializer):

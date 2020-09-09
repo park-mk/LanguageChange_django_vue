@@ -13,6 +13,7 @@ class Equip(models.Model):
     phone_number = models.CharField(default='',max_length=50)
     provider_id = models.IntegerField(default=0)
     created_at = models.DateTimeField(null=True, blank=True)
+    is_apply =models.BooleanField(default=False)
     # following user info
     reason = models.CharField(default='',max_length=200)
     rent_start = models.DateTimeField(null=True, blank=True)
