@@ -5,3 +5,4 @@
      aioredis.errors.ReplyError: ERR unknown command 'BZPOPMIN'
 这样的错误信息。在https://stackoverflow.com/questions/63291097/django-redis-error-unknown-command-bzpopmin上面回答说是只有版本大于5.0.0才可以有这个功能。
 下载链接如下https://redis.io/download，只支持Linux系统。
+运行程序需要安装的库有channels和channels_redis，直接pip install即可。
