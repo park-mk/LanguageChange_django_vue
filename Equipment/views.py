@@ -116,7 +116,10 @@ def provider_off_equip(request,id):
 
 
 
-
+def user_to_waitinglist(request):
+    #李同学请看，在这个函数你会收到三个参数1，设备id，2用户名，3用户id 将其一次排入waitinglist 中 并保证申请过的id无法在申请
+    #最好也能实现一下 waitinglist的删除
+    return JsonResponse({}, status=400)
 
 @csrf_exempt
 def equip(request, pk):
