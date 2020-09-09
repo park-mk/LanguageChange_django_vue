@@ -26,8 +26,10 @@ class Equip(models.Model):
 
 
 class LIST(models.Model):
-        name = models.CharField(max_length=30)
-        userid = models.CharField(max_length=30)
 
-        def __str__(self):
-            return self.name
+    user_id = models.CharField(max_length=30)
+    equip_id = models.CharField(max_length=30)
+    time = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name

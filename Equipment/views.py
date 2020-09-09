@@ -1,4 +1,4 @@
-from .models import Equip
+from .models import Equip, LIST
 from .serializers import EquipSerializer,EquipStatusSerializer
 from rest_framework.parsers import JSONParser
 from django.http import HttpResponse, JsonResponse
@@ -119,7 +119,41 @@ def provider_off_equip(request,id):
 def user_to_waitinglist(request):
     #李同学请看，在这个函数你会收到三个参数1，设备id，2用户名，3用户id 将其一次排入waitinglist 中 并保证申请过的id无法在申请
     #最好也能实现一下 waitinglist的删除
+    """
+    :param request: POST
+    :param equip_id: 借用设备ID
+    :param user_id: 借用者ID
+    :param time: 借用时间（整数），可以是小时，DELETE请求中可以没有
+    :return:
+    """
+    equip_id = request.POST.get('equip_id').strip()
+    user_id = request.POST.get('user_id').strip()
+
+    try:
+        equip = Equip.objects.get(id=equip_id)
+    except Equip.DoesNotExist:
+        return HttpResponse("The equip you want to operate does not exist.", status=200)
+
+    if request.method == 'POST':
+        time = int(request.POST.get('time').strip())
+        if LIST.objects.filter(user_id=user_id, equip_id=equip_id):  # 判断是否申请过
+            return HttpResponse('You already have a reservation for this equipment.', status=200)
+        wl_item = LIST.objects.create(user_id=user_id, equip_id=equip_id, time=time)
+        equip.waiting_list.add(wl_item)
+        return HttpResponse("You have got in the waiting list successfully.", status=200)
+
+
+    if request.method == 'DELETE':
+        try:
+            wl_item = LIST.objects.get(user_id=user_id, equip_id=equip_id)
+        except LIST.DoesNotExist:
+            return HttpResponse("The waiting record you want to delete does not exist.", status=200)
+        equip.waiting_list.remove(wl_item)
+        wl_item.delete()
+        return HttpResponse("Quit from waiting list successfully.", status=200)
+
     return JsonResponse({}, status=400)
+
 
 @csrf_exempt
 def equip(request, pk):
