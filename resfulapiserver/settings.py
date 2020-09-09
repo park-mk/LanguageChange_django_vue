@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'Users',
     'Equipment',
     'rest_framework.authtoken',
+    'channels',
+    'chat'
 ]
 
 MIDDLEWARE = [
@@ -62,7 +64,7 @@ ROOT_URLCONF = 'resfulapiserver.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'chat/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -135,6 +137,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 EMAIL_HOST = "smtp.qq.com"
 EMAIL_PORT = 25
@@ -142,3 +145,15 @@ EMAIL_HOST_USER = "1326742692@qq.com"   # 邮箱
 EMAIL_HOST_PASSWORD = "xuqbsgpdobschbbd"   # 邮箱授权码
 EMAIL_USE_TLS = False
 EMAIL_FROM = "1326742692@qq.com"  # 邮箱
+
+
+ASGI_APPLICATION = 'resfulapiserver.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            # todo add redis的host地址
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}

@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 from Users import views
 from django.urls import path
-
+from chat.views import chat
 
 
 urlpatterns = [
@@ -19,5 +19,7 @@ urlpatterns = [
     url(r'^activate/(?P<token>\w+.[-_\w]*\w+.[-_\w]*\w+)/$', views.user_verified, name='activate'),
     url('api/equip/', include('Equipment.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    path('chat', chat, name='chat-url')
 ]
 
