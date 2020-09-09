@@ -136,19 +136,18 @@ def user_to_waitinglist(request):
 
     if request.method == 'POST':
         time = int(request.POST.get('time').strip())
-        if LIST.objects.filter(user_id=user_id, equip_id=equip_id):  # 判断是否申请过
+        if equip.waiting_list.filter(user_id=user_id, equip_id=equip_id):  # 判断是否申请过
             return HttpResponse('You already have a reservation for this equipment.', status=200)
-        wl_item = LIST.objects.create(user_id=user_id, equip_id=equip_id, time=time)
+        wl_item = LIST(user_id=user_id, equip_id=equip_id, time=time)
         equip.waiting_list.add(wl_item)
         return HttpResponse("You have got in the waiting list successfully.", status=200)
 
 
     if request.method == 'DELETE':
         try:
-            wl_item = LIST.objects.get(user_id=user_id, equip_id=equip_id)
+            wl_item = equip.waiting_list.get(user_id=user_id, equip_id=equip_id)
         except LIST.DoesNotExist:
             return HttpResponse("The waiting record you want to delete does not exist.", status=200)
-        equip.waiting_list.remove(wl_item)
         wl_item.delete()
         return HttpResponse("Quit from waiting list successfully.", status=200)
 
