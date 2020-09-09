@@ -14,6 +14,7 @@ class Equip(models.Model):
     provider_id = models.IntegerField(default=0)
     created_at = models.DateTimeField(null=True, blank=True)
     is_apply =models.BooleanField(default=False)
+    waiting_list = models.ManyToManyField('LIST', blank=True)
     # following user info
     reason = models.CharField(default='',max_length=200)
     rent_start = models.DateTimeField(null=True, blank=True)
@@ -23,3 +24,10 @@ class Equip(models.Model):
 
 
 
+
+class LIST(models.Model):
+        name = models.CharField(max_length=30)
+        userid = models.CharField(max_length=30)
+
+        def __str__(self):
+            return self.name
