@@ -2,10 +2,10 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Users
-from .serializers import UsersSerializer
+from .serializers import UsersSerializer,UserStatusSerial
 from rest_framework.parsers import JSONParser
 from django.contrib.auth.hashers import make_password,check_password
-
+import json
 from django.contrib.auth.models import User
 from rest_framework import generics, status
 
@@ -20,61 +20,160 @@ INVITATION = '5GH4T'             # 管理员邀请码
 
 # Create your views here.
 @csrf_exempt
+#这是为了测试时临时加user 用的函数
 def super_user_list(request):
-    if request.method == 'GET':
-        query_set = Users.objects.all()
-        serializer = UsersSerializer(query_set, many=True)
-        print("get!!!! mota!")
-        return JsonResponse(serializer.data, safe=False)
+    if request.method == 'POST':
+        print(request)
+        print('superuser come to check users lists')
+        #if(check_password('0000', request.body.decode("utf-8"))):
+        if(True):
+            query_set = Users.objects.all()
+            print(query_set)
+            serializer = UserStatusSerial(query_set, many=True)
+            print(serializer.data)
+            temp=sorted(serializer.data, key=lambda t: t['is_apply_a'], reverse=True)
+            print('this',type(temp))
+            new_list = [ dd for dd in temp if not dd['is_staff'] is 0]
+            new_list = [dd for dd in new_list if not dd['is_staff'] is 1]
+            #temp = dict(filter(key=lambda t: t['is_staff'] >= 2, temp))
+            #print(sorted(serializer.data.values("is_apply_a")))
+            print("get!!!! mota!")
+            print(temp)
+            return JsonResponse({"list":list(json.loads(json.dumps(new_list)))}, status=200)
+        else:
+            return HttpResponse({"error":"you are not super user"}, status=500)
 
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
         print("post!!")
         print(request)
         data = JSONParser().parse(request)
-        data['password']=make_password(data['password'])
+        #data['password']=make_password(data['password'])
         serializer = UsersSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
 
-def super_del_user(request,id):
+
+#这是管理者删除user的函数
+def super_del_user(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
-        search_name = data['userid']
-        try:
-            obj = Users.objects.get(userid=id)
-        except:
-            return JsonResponse({'status':'false','message':"no such user"}, status=500)
+        if (check_password('0000', data['token'])):
+            data = JSONParser().parse(request)
+            search_name = data['userid']
+            try:
+                obj = Users.objects.get(userid=data['userid'])
+            except:
+                return JsonResponse({'status':'false','message':"no such user"}, status=500)
             obj.delete()
             serializer = UsersSerializer(obj)
             return JsonResponse(serializer.data, status=200)
         else:
-            print("fail!!")
-            return JsonResponse({'status':'false','message':"wrong pass word"}, status=500)
+            return HttpResponse({"error": "you are not super user"}, status=500)
 
+@csrf_exempt
+def super_update_user(request):
+
+    if request.method == 'POST':
+        if True:
+            data = JSONParser().parse(request)
+            print(data)
+            if (check_password('0000', data['token'])):
+
+                search_name = data['userid']
+                try:
+                    obj = Users.objects.get(userid=data['userid'])
+                except:
+                    return JsonResponse({'status': 'false', 'message': "no such user"}, status=500)
+
+                record = Users.objects.get(userid=data['userid'])
+                UserStatusSerial().upgrade_status(record)
+                return JsonResponse({'up': ' 병시나'}, status=201)
+
+            else:
+                return HttpResponse({"error": "you are not super user"}, status=500)
 
 
 @csrf_exempt
-def user(request, pk):
+def super_downdate_user(request):
 
-    obj = Users.objects.get(pk=pk)
-    print(obj)
-    if request.method == 'GET':
-        serializer = UsersSerializer(obj)
-        return JsonResponse(serializer.data, safe=False)
+    if request.method == 'POST':
+        if True:
 
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = UsersSerializer(obj, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
+            data = JSONParser().parse(request)
 
-    elif request.method == 'DELETE':
-        obj.delete()
-        return HttpResponse(status=204)
+            if (check_password('0000', data['token'])):
+
+                search_name = data['userid']
+
+                try:
+                    obj = Users.objects.get(userid=data['userid'])
+                except:
+                    return JsonResponse({'status': 'false', 'message': "no such user"}, status=500)
+
+                record = Users.objects.get(userid=data['userid'])
+                UserStatusSerial().downgrade_status(record)
+                return JsonResponse({'뭐래': '안보이냐'}, status=201)
+
+            else:
+                return HttpResponse({"error": "you are not super user"}, status=500)
+
+
+@csrf_exempt
+def super_deny_apply(request):
+
+    if request.method == 'POST':
+        if True:
+
+            data = JSONParser().parse(request)
+
+            if (check_password('0000', data['token'])):
+
+                search_name = data['userid']
+
+                try:
+                    obj = Users.objects.get(userid=data['userid'])
+                except:
+                    return JsonResponse({'status': 'false', 'message': "no such user"}, status=500)
+
+                record = Users.objects.get(userid=data['userid'])
+                UserStatusSerial().deny_apply(record)
+                return JsonResponse({'뭐래': '쿠켈켈'}, status=201)
+
+            else:
+                return HttpResponse({"error": "you are not super user"}, status=500)
+@csrf_exempt
+def super_view_rent_user(request):
+
+    if request.method == 'POST':
+        if True:
+        #if(check_password('0000', request.body.decode("utf-8"))):
+            #data = JSONParser().parse(request)
+           # search_name = data['userid']
+            obj = Users.objects.filter(is_apply_b=True)
+            obj2 = Users.objects.filter(is_rent=True)
+            result = list(obj) + list(obj2)
+            serializer = UserStatusSerial(result, many=True)
+            print(serializer.data)
+
+            return JsonResponse({"error":"you are not super user"}, status=200)
+
+        else:
+            return HttpResponse({"error":"you are not super user"}, status=500)
+
+@csrf_exempt
+def send_user_status(request):
+
+    if request.method == 'POST':
+        #print(JSONParser().parse(request))
+        print(request.body.decode("utf-8"))
+        obj = Users.objects.get(userid=request.body.decode("utf-8"))
+        #print(JSONParser(request))
+       # serializer = UsersSerializer(obj)
+        return JsonResponse({'is_staff':obj.is_staff}, safe=False)
+
+
 
 
 
@@ -87,20 +186,24 @@ def user(request, pk):
 def login(request):
 
     if request.method == 'POST':
+        print('fuck')
+        print(request.POST)
+
         data = JSONParser().parse(request)
+        print(data)
         search_name = data['userid']
+        print('data')
         try:
             obj = Users.objects.get(userid=search_name)
         except:
+
             return JsonResponse({'status':'false','message':"no such user"}, status=500)
 
-        print('??')
-
-        if check_password(data['password'],obj.password):
+        check=make_password(data['password'])
+        if check_password(obj.password,check):
             # if verified =false return haven't verified
-            print("login!!!")
-            serializer = UsersSerializer(obj)
-            return JsonResponse(serializer.data, status=200)
+            print('to heddddre')
+            return JsonResponse({"token":check,"userid":data['userid']}, status=200)
         else:
             print("fail!!")
             return JsonResponse({'status':'false','message':"wrong pass word"}, status=500)
@@ -108,9 +211,9 @@ def login(request):
 
     return render(request, 'Users/login.html')
 
+
 @csrf_exempt
 def register_mail_post(request):
-
     if request.method == 'POST':
         #当在 api／register中有post 请求 输入{username: password: email :}d的时候 向指定的email发送认证email 并保证该email 可以重新
         #跑动 新的函数 def user_verified

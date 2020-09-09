@@ -3,18 +3,24 @@ from .serializers import EquipSerializer
 from rest_framework.parsers import JSONParser
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from django.contrib.auth.hashers import make_password,check_password
+import json
 # Create your views here.
 
 @csrf_exempt
 def equip_list(request):
-    print('to here')
-    if request.method == 'GET':
-        query_set = Equip.objects.all()
-        serializer = EquipSerializer(query_set, many=True)
-        return JsonResponse(serializer.data, safe=False)
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        print('superuser come to check users lists')
+        if (check_password('123123asdasd', data['token'])):
+            query_set = Equip.objects.all()
+            serializer =EquipSerializer(query_set, many=True)
+            print("get!!!! mota!")
+            return HttpResponse([json.loads(json.dumps(serializer.data))], status=200)
+        else:
+            return HttpResponse({"error": "you are not super user"}, status=500)
 
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
         print('to here')
         data = JSONParser().parse(request)
         serializer = EquipSerializer(data=data)
