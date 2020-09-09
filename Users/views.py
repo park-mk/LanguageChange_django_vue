@@ -137,9 +137,9 @@ def register_mail_post(request):
         is_manager = False
         if invitation:
             if invitation == INVITATION:
-            	is_manager = True
+                is_manager = True
             else:                # 如果填写了邀请码但不一致，返回错误
-            	return HttpResponse('邀请码错误', status=200)
+                return HttpResponse('邀请码错误', status=200)
 
         # 不能同时成为两个身份
         if is_manager and is_provider:
