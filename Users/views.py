@@ -4,8 +4,10 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Users
 from .serializers import UsersSerializer,UserStatusSerial
 from rest_framework.parsers import JSONParser
+
 from django.contrib.auth.hashers import make_password,check_password
 import json
+
 from django.contrib.auth.models import User
 from rest_framework import generics, status
 
@@ -20,6 +22,7 @@ INVITATION = '5GH4T'             # 管理员邀请码
 
 # Create your views here.
 @csrf_exempt
+
 #这是为了测试时临时加user 用的函数
 def super_user_list(request):
     if request.method == 'POST':
@@ -43,16 +46,9 @@ def super_user_list(request):
         else:
             return HttpResponse({"error":"you are not super user"}, status=500)
 
-    elif request.method == 'PUT':
-        print("post!!")
-        print(request)
-        data = JSONParser().parse(request)
-        #data['password']=make_password(data['password'])
-        serializer = UsersSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
+
+
+
 
 
 #这是管理者删除user的函数
@@ -93,6 +89,8 @@ def super_update_user(request):
 
             else:
                 return HttpResponse({"error": "you are not super user"}, status=500)
+
+
 
 
 @csrf_exempt
@@ -186,6 +184,7 @@ def send_user_status(request):
 def login(request):
 
     if request.method == 'POST':
+
         print('fuck')
         print(request.POST)
 
@@ -204,9 +203,11 @@ def login(request):
             # if verified =false return haven't verified
             print('to heddddre')
             return JsonResponse({"token":check,"userid":data['userid']}, status=200)
+
+
         else:
             print("fail!!")
-            return JsonResponse({'status':'false','message':"wrong pass word"}, status=500)
+            return HttpResponse(status=401)
 
 
     return render(request, 'Users/login.html')
@@ -239,7 +240,11 @@ def register_mail_post(request):
         # 验证是否注册管理员（邀请码的正确性）
         is_manager = False
         if invitation:
-            if invitation == INVITATION:
+
+            if Users.objects.filter(is_staff=1):        # 检测是否存在管理员账号
+                return HttpResponse('管理员账号已经被注册', status=200)
+            elif invitation == INVITATION:           # 检测邀请码是否一致
+
                 is_manager = True
             else:                # 如果填写了邀请码但不一致，返回错误
                 return HttpResponse('邀请码错误', status=200)
