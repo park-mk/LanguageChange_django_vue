@@ -1,0 +1,7 @@
+压缩包Redis-x64-3.0.504.zip在解压到任意路径后可以按照https://zhuanlan.zhihu.com/p/58944835上面的介绍进行配置，从而建立起聊天所需的后端挂起的缓存数据库。
+由于websocket也需要配置前端才可以正确运行，因此我找了一个可以匹配的前端作为聊天界面
+登录url：http://127.0.0.1:8000/chat即可查看聊天界面
+但是由于windows目前只能够支持3.0系列的Redis，所以在发送消息之后会显示
+     aioredis.errors.ReplyError: ERR unknown command 'BZPOPMIN'
+这样的错误信息。在https://stackoverflow.com/questions/63291097/django-redis-error-unknown-command-bzpopmin上面回答说是只有版本大于5.0.0才可以有这个功能。
+下载链接如下https://redis.io/download，只支持Linux系统。

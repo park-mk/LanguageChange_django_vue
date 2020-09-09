@@ -23,11 +23,9 @@ class xChatConsumer(WebsocketConsumer):
 
 
 class yChatConsumer(WebsocketConsumer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
-        self.room_group_name = 'Chat Group'
 
     def connect(self):
+        self.room_group_name = 'ChatGroup'
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
@@ -68,12 +66,10 @@ class yChatConsumer(WebsocketConsumer):
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
-        self.room_group_name = 'Chat Group'
 
     async def connect(self):
         # Join room group
+        self.room_group_name = 'ChatGroup'
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
