@@ -20,7 +20,7 @@ from rest_framework.authtoken.models import Token
 
 from django.core.mail import send_mail      # 发送邮件模块
 from .utils import token_confirm
-DOMAIN = 'http://127.0.0.1:8000'        # 网站运行域
+DOMAIN = 'http://192.168.43.184:8000'        # 网站运行域
 INVITATION = '5GH4T'             # 管理员邀请码
 
 # Create your views here.
@@ -298,7 +298,9 @@ def register_mail_post(request):
         # 获取用户注册数据
         data = JSONParser().parse(request)
         # 验证是否注册过
-        print('?')
+        print(data)
+        print(type(data))
+
         is_username_repeated = Users.objects.filter(userid=data['userid'])
         is_email_repeated = Users.objects.filter(email=data['email'])
         if is_username_repeated:
@@ -324,9 +326,9 @@ def register_mail_post(request):
                              token_url])
         send_mail(u'注册用户验证信息', message, '1326742692@qq.com', [data['email']], fail_silently=False)
 
-        return HttpResponse({'data':'success'}, status=200)
+        return HttpResponse({'success':'success'}, status=200)
 
-    return HttpResponse({'data':'fail'}, status=200)
+    return HttpResponse({'data':'fail'}, status=400)
 
 
 
@@ -341,17 +343,18 @@ def user_verified(request, token):
         for user in users:
             user.delete()  # 删除注册用户
         return HttpResponse(
-            u'对不起，验证链接已经过期，请重新<a href=\"' + DOMAIN + u'/register\">注册</a>',
+            u'对不起，验证链接已经过期，请重新注册</a>',
             status=200
         )
 
     try:
         user = Users.objects.get(username=username)
     except Users.DoesNotExist:
-        return HttpResponse(u"对不起，您所验证的用户不存在，请重新注册", status=200)
+        return HttpResponse(u"对不起，您所验证的用户不存在，请重新注册", status=400)
     user.is_verified = True
+    user.is_staff=3
     user.save()
-    message = u'账号激活成功，可以进行<a href=\"' + DOMAIN + u'/api/login\">登录</a>操作'
+    message = u'账号激活成功，可以进行登录</a>操作'
     # return render(request, 'common/success.html', {'reason': message})
 
-    return HttpResponse(message, status=200)
+    return HttpResponse(message, status=400)

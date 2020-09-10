@@ -6,6 +6,7 @@ urlpatterns = [
     path('update/<str:id>', views.provider_update_equip),
     path('on/<str:id>',views.provider_on_equip),
     path('off/<str:id>', views.provider_off_equip),
+    path('equip/<int:id>/', views.equip),
     path('deny/', views.deny_equip),
     path('rentlist/', views.equip_rent_list),
     path('rentlist/<str:id>', views.equip_rent_list_specific),

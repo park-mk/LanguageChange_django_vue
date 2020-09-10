@@ -138,25 +138,16 @@ def equip_borrow_user_info(request):
 
 
 @csrf_exempt
-def equip(request, pk):
-
-    obj = Equip.objects.get(pk=pk)
+def equip(request,id):
+    #print(id)
+    print('fuck')
+    obj = Equip.objects.get(id=id)
 
     if request.method == 'GET':
         serializer = EquipSerializer(obj)
         return JsonResponse(serializer.data, safe=False)
 
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = EquipSerializer(obj, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
 
-    elif request.method == 'DELETE':
-        obj.delete()
-        return HttpResponse(status=204)
 
 
 @csrf_exempt
@@ -339,23 +330,3 @@ def super_view_apply_equip_info(request):
             return HttpResponse({"error":"you are not super user"}, status=500)
 
 
-@csrf_exempt
-def equip(request, pk):
-
-    obj = Equip.objects.get(pk=pk)
-
-    if request.method == 'GET':
-        serializer = EquipSerializer(obj)
-        return JsonResponse(serializer.data, safe=False)
-
-    elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = EquipSerializer(obj, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
-
-    elif request.method == 'DELETE':
-        obj.delete()
-        return HttpResponse(status=204)
