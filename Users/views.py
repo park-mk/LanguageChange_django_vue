@@ -319,9 +319,9 @@ def register_mail_post(request):
         create_user(data)
 
         # 邮箱验证
-        token = token_confirm.generate_validate_token(data['username'])
+        token = token_confirm.generate_validate_token(data['userid'])
         token_url = '/'.join([DOMAIN, 'activate', token])
-        message = "\n".join([u'{0},欢迎加入设备租借系统'.format(['username']),
+        message = "\n".join([u'{0},欢迎加入设备租借系统'.format(['userid']),
                              u'请访问该链接，完成用户验证:',
                              token_url])
         send_mail(u'注册用户验证信息', message, '1326742692@qq.com', [data['email']], fail_silently=False)
@@ -339,7 +339,7 @@ def user_verified(request, token):
         username = token_confirm.confirm_validate_token(token)
     except:       # 令牌过期
         username = token_confirm.remove_validate_token(token)
-        users = Users.objects.filter(username=username)
+        users = Users.objects.filter(userid=username)
         for user in users:
             user.delete()  # 删除注册用户
         return HttpResponse(
@@ -348,7 +348,7 @@ def user_verified(request, token):
         )
 
     try:
-        user = Users.objects.get(username=username)
+        user = Users.objects.get(userid=username)
     except Users.DoesNotExist:
         return HttpResponse(u"对不起，您所验证的用户不存在，请重新注册", status=400)
     user.is_verified = True
