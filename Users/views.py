@@ -319,7 +319,7 @@ def register_mail_post(request):
         # 邮箱验证
         token = token_confirm.generate_validate_token(data['username'])
         token_url = '/'.join([DOMAIN, 'activate', token])
-        message = "\n".join([u'{0},欢迎加入XX'.format(['username']),
+        message = "\n".join([u'{0},欢迎加入设备租借系统'.format(['username']),
                              u'请访问该链接，完成用户验证:',
                              token_url])
         send_mail(u'注册用户验证信息', message, '1326742692@qq.com', [data['email']], fail_silently=False)
