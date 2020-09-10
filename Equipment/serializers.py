@@ -26,12 +26,14 @@ class EquipSerializer(serializers.ModelSerializer):
 
     def on(self, instance):
         instance.is_on = True
+        instance.is_apply = False
         # to superuser noti+1
         instance.save()
         return instance
 
     def off(self, instance):
         instance.is_on = False
+        instance.is_apply = False
         instance.save()
         return instance
 
@@ -43,6 +45,21 @@ class EquipSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class EquipRentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equip
+        fields = ['id','name','phone_number','is_apply','is_rent','rent_user_name','provider_id']
+
+class EquipRentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equip
+        fields = ['reason','rent_user_name','name','rent_start','rent_exp']
+
+
+class EquipONSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equip
+        fields = ['id','is_on','name','phone_number','location']
 
 class EquipStatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,10 +79,23 @@ class EquipStatusSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
     def deny_apply(self, instance):
         instance.is_apply = False
         instance.save()
         return instance
 
+
+    def accept_apply(self, instance):
+        instance.is_apply = False
+        instance.is_rent=True
+        instance.save()
+        return instance
+
+
+class EquipDesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equip
+        fields = ['name','phone_number','location','description']
 
 

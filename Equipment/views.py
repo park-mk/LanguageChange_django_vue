@@ -1,5 +1,5 @@
 from .models import Equip, LIST
-from .serializers import EquipSerializer,EquipStatusSerializer
+from .serializers import EquipSerializer,EquipStatusSerializer,EquipONSerializer,EquipDesSerializer,EquipRentSerializer,EquipRentUserSerializer
 from rest_framework.parsers import JSONParser
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -10,6 +10,7 @@ import json
 @csrf_exempt
 def equip_list(request):
     if request.method == 'POST':
+
 
         print('superuser come to check users lists')
         if True:#(check_password('0000', request.body.decode("utf-8"))):
@@ -33,6 +34,72 @@ def equip_list(request):
 
 
 @csrf_exempt
+def equip_on_list(request):
+    if request.method == 'GET':
+
+        print('user come to check users lists')
+        if True:  # (check_password('0000', request.body.decode("utf-8"))):
+            query_set = Equip.objects.all()
+            print(query_set)
+            serializer = EquipONSerializer(query_set, many=True)
+            print(query_set)
+            new2_list = [dd for dd in serializer.data if dd['is_on'] is True]
+            new_list = new2_list
+            return JsonResponse({"list": list(json.loads(json.dumps(new_list)))}, status=200)
+
+
+@csrf_exempt
+def equip_rent_list(request):
+    print('aa')
+    if request.method == 'POST':
+
+        print('superuser come to check users lists')
+        if True:#(check_password('0000', request.body.decode("utf-8"))):
+            query_set = Equip.objects.all()
+            print(query_set)
+            serializer = EquipRentSerializer(query_set, many=True)
+            print(serializer.data)
+            temp = sorted(serializer.data, key=lambda t: t['is_apply'], reverse=True)
+            print('this', type(temp))
+            new_list = [dd for dd in temp if dd['is_apply'] is True]
+            new2_list = [dd for dd in temp if  dd['is_rent'] is True]
+            new_list=new_list+new2_list
+            # temp = dict(filter(key=lambda t: t['is_staff'] >= 2, temp))
+            # print(sorted(serializer.data.values("is_apply_a")))
+            print("get!!!! mota!")
+            print(temp)
+            return JsonResponse({"list": list(json.loads(json.dumps(new_list)))}, status=200)
+
+        else:
+            return HttpResponse({"error": "you are not super user"}, status=500)
+
+
+@csrf_exempt
+def equip_rent_list_specific(request,id):
+    print('aa')
+    if request.method == 'POST':
+
+        print('superuser come to check users lists')
+        if True:#(check_password('0000', request.body.decode("utf-8"))):
+            query_set = Equip.objects.all()
+            print(query_set)
+            serializer = EquipRentSerializer(query_set, many=True)
+            print(serializer.data)
+            temp = sorted(serializer.data, key=lambda t: t['is_apply'], reverse=True)
+            print('this', type(temp))
+            new_list = [dd for dd in temp if dd['is_apply'] is True]
+            new2_list = [dd for dd in temp if  dd['is_rent'] is True]
+            new_list=new_list+new2_list
+            # temp = dict(filter(key=lambda t: t['is_staff'] >= 2, temp))
+            # print(sorted(serializer.data.values("is_apply_a")))
+            print("get!!!! mota!")
+            print(temp)
+            return JsonResponse({"list": list(json.loads(json.dumps(new_list)))}, status=200)
+
+        else:
+            return HttpResponse({"error": "you are not super user"}, status=500)
+
+@csrf_exempt
 def provider_add_list(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
@@ -41,6 +108,25 @@ def provider_add_list(request):
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+@csrf_exempt
+def equip_borrow_user_info(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+
+        if True :#(check_password('0000', data['token'])):
+
+
+
+            try:
+                obj = Equip.objects.get(id=data['equipid'])
+            except:
+                return JsonResponse({'status': 'false', 'message': "no such user"}, status=500)
+
+
+            serializer = EquipRentUserSerializer(obj)
+
+            return JsonResponse(serializer.data, status=201)
 
 
 
@@ -77,6 +163,33 @@ def provider_add_list(request):
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
 
+
+@csrf_exempt
+def deny_equip(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        record = Equip.objects.get(id=data['equipid'])
+        EquipStatusSerializer().deny_apply(record)
+        return JsonResponse({"yes":"denied"}, status=200)
+
+
+@csrf_exempt
+def accept_rent_equip(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        record = Equip.objects.get(id=data['equipid'])
+        EquipStatusSerializer().accept_apply(record)
+        return JsonResponse({"yes":"accepted"}, status=200)
+
+
+@csrf_exempt
+def deny_rent_equip(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        record = Equip.objects.get(id=data['equipid'])
+        EquipStatusSerializer().deny_apply(record)
+        return JsonResponse({"yes":"denied"}, status=200)
+
 @csrf_exempt
 def provider_update_equip(request,id):
     if request.method == 'GET':
@@ -91,9 +204,10 @@ def provider_update_equip(request,id):
 
 
 @csrf_exempt
-def provider_del_equip(request,id):
-    if request.method == 'DELETE':
-        record = Equip.objects.get(id=id)
+def provider_del_equip(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        record = Equip.objects.get(id=data['equipid'])
         EquipSerializer().delete(record)
         return JsonResponse({'SUCCESS':'SUCCE??SS'}, status=201)
 
@@ -110,6 +224,8 @@ def provider_off_equip(request,id):
         record = Equip.objects.get(id=id)
         EquipSerializer().off(record)
         return JsonResponse({'SUCCESS':'SUCCESS'}, status=201)
+
+
 
 
 
@@ -152,6 +268,22 @@ def user_to_waitinglist(request):
         return HttpResponse("Quit from waiting list successfully.", status=200)
 
     return JsonResponse({}, status=400)
+
+
+@csrf_exempt
+def super_view_apply_equip_info(request):
+
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        if (check_password('0000', data['token'])):
+            obj = Equip.objects.get(id=data['equipid'])
+            serializer = EquipDesSerializer(obj)
+            print(serializer.data)
+
+            return JsonResponse(serializer.data, status=200)
+
+        else:
+            return HttpResponse({"error":"you are not super user"}, status=500)
 
 
 @csrf_exempt

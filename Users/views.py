@@ -4,7 +4,10 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Users
 from .serializers import UsersSerializer,UserStatusSerial,UserUpdateApplySerial
 from rest_framework.parsers import JSONParser
+from datetime import timedelta,date
+from django.utils import timezone
 
+from django.utils.dateparse import parse_datetime
 from django.contrib.auth.hashers import make_password,check_password
 import json
 
@@ -46,16 +49,34 @@ def super_user_list(request):
         else:
             return HttpResponse({"error":"you are not super user"}, status=500)
 
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        data['password'] = make_password(data['password'])
+        serializer = UsersSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
 
 
 
+
+def create_user(data):
+    print('?2')
+    print('?2')
+    data['password'] = make_password(data['password'])
+    serializer = UsersSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return JsonResponse(serializer.data, status=201)
+    return JsonResponse(serializer.errors, status=400)
 
 
 #这是管理者删除user的函数
 @csrf_exempt
 def super_del_user(request):
     if request.method == 'DELETE':
-        record = Users.objects.get(id=22)
+        record = Users.objects.get(userid='0005')
         UsersSerializer().delete(record)
         return JsonResponse({'SUCCESS': 'SUCCE??SS'}, status=201)
     if request.method == 'POST':
@@ -71,7 +92,6 @@ def super_del_user(request):
                 return JsonResponse({'status':'false','message':"no such user"}, status=500)
             print('i will delete2', search_name)
             UsersSerializer().delete(obj)
-
             return JsonResponse({'d':'success'}, status=200)
         else:
             return HttpResponse({"error": "you are not super user"}, status=500)
@@ -84,7 +104,7 @@ def super_update_user(request):
             data = JSONParser().parse(request)
             print(data)
             if (check_password('0000', data['token'])):
-
+                print('fuck you')
                 search_name = data['userid']
                 try:
                     obj = Users.objects.get(userid=data['userid'])
@@ -183,6 +203,21 @@ def super_view_rent_user_info(request):
         else:
             return HttpResponse({"error":"you are not super user"}, status=500)
 
+@csrf_exempt
+def user_apply_rent(request):
+
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        if (check_password('0000', data['token'])):
+            obj = Users.objects.get(userid=data['userid'])
+            serializer = UserUpdateApplySerial(obj)
+            print(serializer.data)
+
+            return JsonResponse(serializer.data, status=200)
+
+        else:
+            return HttpResponse({"error":"you are not super user"}, status=500)
+
 
 @csrf_exempt
 def send_user_status(request):
@@ -195,16 +230,30 @@ def send_user_status(request):
        # serializer = UsersSerializer(obj)
         return JsonResponse({'is_staff':obj.is_staff}, safe=False)
 
+@csrf_exempt
+def  user_get_your_status(request):
+
+    if request.method == 'POST':
+        obj = Users.objects.get(userid=request.body.decode("utf-8"))
+        serializer = UsersSerializer(obj)
+        print(obj)
+        start_date = timezone.now().date()
+        end_date = start_date - timedelta(days=1)
+        if  serializer.data['is_rent']:
+            exp_day = parse_datetime(serializer.data['created_at']).date()
+            today = timezone.now().date()
+            print((exp_day - today).days)
+            day=(exp_day - today).days
+            print(serializer.data['created_at'])
+            return JsonResponse({"days":day}, status=200)
+        else:
+
+            return JsonResponse({"days":"availabe"}, status=200)
 
 
 
 
 @csrf_exempt
-
-
-
-
-
 def login(request):
 
     if request.method == 'POST':
@@ -222,11 +271,11 @@ def login(request):
 
             return JsonResponse({'status':'false','message':"no such user"}, status=500)
 
-        check=make_password(data['password'])
-        if check_password(obj.password,check):
+
+        if check_password(data['password'],obj.password):
             # if verified =false return haven't verified
             print('to heddddre')
-            return JsonResponse({"token":check,"userid":data['userid']}, status=200)
+            return JsonResponse({"token":obj.password,"userid":data['userid']}, status=200)
 
 
         else:
@@ -247,51 +296,33 @@ def register_mail_post(request):
         # is_provider: 是否注册成为提供者(可提供打勾选项)
 
         # 获取用户注册数据
-        username = request.POST.get('username').strip()
-        password = request.POST.get('password').strip()
-        email = request.POST.get('email').strip()
-        invitation = request.POST.get('invitation').strip()
-        is_provider = request.POST.get('is_provider')
-
+        data = JSONParser().parse(request)
         # 验证是否注册过
-        is_username_repeated = Users.objects.filter(username=username)
-        is_email_repeated = Users.objects.filter(email=email)
+        print('?')
+        is_username_repeated = Users.objects.filter(userid=data['userid'])
+        is_email_repeated = Users.objects.filter(email=data['email'])
         if is_username_repeated:
             return HttpResponse('该用户名已经被注册过，请重新注册', status=200)
         if is_email_repeated:
             return HttpResponse('该邮件已经被注册过，请重新注册', status=200)
 
         # 验证是否注册管理员（邀请码的正确性）
-        is_manager = False
-        if invitation:
 
-            if Users.objects.filter(is_staff=1):        # 检测是否存在管理员账号
-                return HttpResponse('管理员账号已经被注册', status=200)
-            elif invitation == INVITATION:           # 检测邀请码是否一致
-
-                is_manager = True
-            else:                # 如果填写了邀请码但不一致，返回错误
-                return HttpResponse('邀请码错误', status=200)
-
+        print('?')
         # 不能同时成为两个身份
-        if is_manager and is_provider:
-            return HttpResponse('不能同时成为管理员和设备提供者', status=200)
+
 
         # 确认注册信息有效后，插入数据
-        if is_manager:
-            user = Users.objects.create_superuser(username=username, password=password, email=email)
-        elif is_provider:
-            user = Users.objects.create_user(username=username, password=password, email=email, is_provider=True)
-        else:
-            user = Users.objects.create_user(username=username, password=password, email=email, is_provider=False)
+
+        create_user(data)
 
         # 邮箱验证
-        token = token_confirm.generate_validate_token(username)
+        token = token_confirm.generate_validate_token(data['username'])
         token_url = '/'.join([DOMAIN, 'activate', token])
-        message = "\n".join([u'{0},欢迎加入XX'.format(username),
+        message = "\n".join([u'{0},欢迎加入XX'.format(['username']),
                              u'请访问该链接，完成用户验证:',
                              token_url])
-        send_mail(u'注册用户验证信息', message, '1326742692@qq.com', [email], fail_silently=False)
+        send_mail(u'注册用户验证信息', message, '1326742692@qq.com', [data['email']], fail_silently=False)
 
         return HttpResponse({'data':'success'}, status=200)
 

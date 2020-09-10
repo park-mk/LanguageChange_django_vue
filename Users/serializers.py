@@ -16,10 +16,12 @@ class UsersSerializer(serializers.ModelSerializer):
 
 
 
+
+
 class UserStatusSerial(serializers.ModelSerializer):
     class Meta:
         model = Users
-        fields = ['username','userid','is_staff','is_apply_a']
+        fields = '__all__'  #['password','username','userid','is_staff','is_apply_a']
        # fields = ['username','email','is_verified','is_active','created_at']
 
     def upgrade_status(self, instance):
