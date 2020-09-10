@@ -71,5 +71,6 @@ class GRADE(models.Model):
     comment=models.CharField(max_length=300)
     grade=models.IntegerField(default=0)
 
+
     def __str__(self):
         return self.name
