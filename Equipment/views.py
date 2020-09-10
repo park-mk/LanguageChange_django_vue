@@ -5,6 +5,12 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password,check_password
 import json
+
+from django.db.models.functions import (
+    ExtractDay, ExtractMonth, ExtractYear
+)
+from .utils import add_print_date
+import datetime
 # Create your views here.
 
 @csrf_exempt
@@ -128,20 +134,67 @@ def user_to_waitinglist(request):
     """
     equip_id = request.POST.get('equip_id').strip()
     user_id = request.POST.get('user_id').strip()
+    start_time = request.POST.get('start').strip()
+    end_time = request.POST.get('end').strip()
 
     try:
         equip = Equip.objects.get(id=equip_id)
     except Equip.DoesNotExist:
         return HttpResponse("The equip you want to operate does not exist.", status=200)
 
+    date_unavailable_list = []      # 已占用的日期列表：形式['2020/7/8', '2020/7/9', ]
+    reservations = equip.waiting_list.all()
+    for reservation in reservations:
+        rent_inf = reservation.objects.annotate(
+            year_from=ExtractYear('rent_start'),
+            month_from=ExtractMonth('rent_start'),
+            day_from=ExtractDay('rent_start'),
+            year_to=ExtractDay('rent_exp'),
+            month_to=ExtractDay('rent_exp'),
+            day_to=ExtractDay('rent_exp')
+        ).get()
+        add_print_date(year_from=rent_inf.year_from,
+                       month_from=rent_inf.month_from,
+                       day_from=rent_inf.day_from,
+                       year_to=rent_inf.year_to,
+                       month_to=rent_inf.month_to,
+                       day_to=rent_inf.day_to,
+                       list_of_date=date_unavailable_list)
+
+    if request.method == 'GET':          # 检查今天是否在waitinglist预约时间内
+        now_time = datetime.datetime.now()
+        time_str = str(now_time.year) + '/' + str(now_time.month) + '/' + str(now_time.day)
+        if time_str in date_unavailable_list:
+            return HttpResponse('There is reservation today.', status=200)
+        else:
+            return HttpResponse('There is not reservation today.', status=200)
+
     if request.method == 'POST':
-        time = int(request.POST.get('time').strip())
-        if equip.waiting_list.filter(user_id=user_id, equip_id=equip_id):  # 判断是否申请过
+        start_time = request.POST.get('start').strip()  # 格式: '2020/7/8'
+        end_time = request.POST.get('end').strip()
+
+        start_time = start_time.split('/')
+        end_time = end_time.split('/')
+
+        # 检查是否该时段有人占用
+        time_list = []
+        add_print_date(year_from=int(start_time[0]),
+                       month_from=int(start_time[1]),
+                       day_from=int(start_time[2]),
+                       year_to=int(end_time[0]),
+                       month_to=int(end_time[1]),
+                       day_to=int(end_time[2]),
+                       list_of_date=time_list)
+
+        for date in time_list:
+            if date in date_unavailable_list:
+                return HttpResponse('您预约的时间有人占用.\n占用时间包括:'+str(date_unavailable_list), status=200)
+
+        if equip.waiting_list.filter(user_id=user_id):  # 判断是否申请过
             return HttpResponse('You already have a reservation for this equipment.', status=200)
-        wl_item = LIST(user_id=user_id, equip_id=equip_id, time=time)
+        wl_item = LIST(user_id=user_id, rent_start=start_time, rent_exp=end_time)
         equip.waiting_list.add(wl_item)
         return HttpResponse("You have got in the waiting list successfully.", status=200)
-
 
     if request.method == 'DELETE':
         try:

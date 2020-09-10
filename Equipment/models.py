@@ -28,8 +28,8 @@ class Equip(models.Model):
 class LIST(models.Model):
 
     user_id = models.CharField(max_length=30)
-    equip_id = models.CharField(max_length=30)
-    time = models.IntegerField(default=0)
+    rent_start = models.DateTimeField(null=True, blank=True)
+    rent_exp = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.name
