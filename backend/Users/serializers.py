@@ -50,6 +50,7 @@ class UserStatusSerial(serializers.ModelSerializer):
         instance.rent_status = 1
         instance.is_apply_b = True
         instance.apply_equip_id=equipid
+        print("whRkfk")
         instance.apply_equip_name=equipname
         instance.save()
         return instance
@@ -75,6 +76,11 @@ class UserStatusSerial(serializers.ModelSerializer):
         instance.save()
         return instance
 
+    def update_rent_date(self, instance, rent_start, rent_end):
+        instance.rent_start = rent_start
+        instance.rent_end = rent_end
+        instance.save()
+        return instance
 
 class UserUpdateApplySerial(serializers.ModelSerializer):
     class Meta:

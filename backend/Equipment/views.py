@@ -56,7 +56,7 @@ def equip_list(request):
             temp = sorted(serializer.data, key=lambda t: t['is_rent'], reverse=True)
 
             new_list = [dd for dd in temp if dd['provider_id'] == request.body.decode("utf-8")]
-
+            print(new_list)
             return JsonResponse({"list": list(json.loads(json.dumps(new_list)))}, status=200)
         else:
             return HttpResponse({"error": "you are not super user"}, status=500)
@@ -110,6 +110,45 @@ def equip_rent_list(request):
 
 
 @csrf_exempt
+def return_equip(request):
+    if request.method == 'POST':
+        print(request.body.decode("utf-8"))
+        print('??')
+        record = Equip.objects.get(id=request.body.decode("utf-8"))
+        EquipSerializer().return_equip(record)
+        print(record.is_return ,'this is ')
+    return JsonResponse({"return":" user_success"}, status=200)
+
+@csrf_exempt
+def return_equip_check(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        equip_item = Equip.objects.get(id=data['equip_id'])
+        #EquipSerializer().return_equip_check(equip_item)
+        reservations = equip_item.waiting_list.all()
+        print(reservations.count(), 'resereve')
+        print(reservations)
+         #equip_item.waiting_list.remove(serial.data['id'])
+
+        for reservation in reservations:
+            print('터져', reservation)
+        for reservation in reservations:
+            serial = WaitingSerializer(reservation)
+
+            if serial['user_id'] ==data['user_id']:
+                equip_item.waiting_list.remove(serial.data['id'])
+                history = {"user_id": data['user_id'], "user_name": data['user_name'],
+                           "rent_start": data['rent_start'],
+                           "rent_exp":data['rent_exp'], "reason": serial.data['reason']}
+                h_serializer = HISSerialize(data=history)
+                if h_serializer.is_valid():
+                    id=h_serializer.save()
+                    query_set = HIS.objects.all()
+                    obj = HIS.objects.get(id=id.id)
+                    equip_item.history_list.add(obj)  # ADD
+        return HttpResponse("return and add history list successfully.", status=200)
+
+@csrf_exempt
 def equip_rent_list_specific(request,id):
     print('aa')
     if request.method == 'POST':
@@ -151,8 +190,6 @@ def equip_borrow_user_info(request):
         data = JSONParser().parse(request)
         print(data)
         if True :#(check_password('0000', data['token'])):
-
-
 
             try:
                 obj = Equip.objects.get(id=data['equipid'])
@@ -289,6 +326,7 @@ def equip_history(request):
 
     if request.method == 'POST':
         print('history')
+
         try:
             data = JSONParser().parse(request)
         except:
@@ -323,6 +361,7 @@ def equip_waiting_list(request):
             return HttpResponse("The equip you want to operate does not exist.", status=200)
         query_set = equip_item.waiting_list.all()
         serializer = WaitingSerializer(query_set, many=True)
+        print(len(query_set))
         return JsonResponse({"list": list(json.loads(json.dumps(serializer.data)))}, status=200)
 
 @csrf_exempt
@@ -339,7 +378,7 @@ def super_allow_equip_rent(request):
 
         except Equip.DoesNotExist:
             return HttpResponse("The equip you want to operate does not exist.", status=200)
-
+        EquipRentSerializer().is_rent(equip_item)  # ehfdkdhk
         record = LIST.objects.get(id=data['id'])
         print(record)
         WaitingSerializer().allow(record)
@@ -379,22 +418,19 @@ def equip_grading(request):
         user_id = data['user_id']
         user_name = data['user_name']
         grade=data['grade']
-        data = {"user_id": user_id, "user_name": user_name, "grade": grade, "comment":'~~~'}
+        data = {"user_id": user_id, "user_name": user_name, "grade": grade, "comment":data['comment']}
         serializer = GRADESerialize(data=data)
         if serializer.is_valid():
-            serializer.save()
+            id=serializer.save()
             query_set = GRADE.objects.all()
             serializer = GRADESerialize(query_set, many=True)
-            obj = GRADE.objects.get(id=len(query_set))
+            obj = GRADE.objects.get(id=id.id)
             equip_item.grade_list.add(obj)
             return HttpResponse("success", status=200)
         print(serializer.errors)
         return HttpResponse("fail", status=200)
 
     if request.method == 'PATCH':
-
-
-
         query_set = GRADE.objects.all()
         serializer = GRADESerialize(query_set, many=True)
         obj = GRADE.objects.get(id=len(query_set))
@@ -409,13 +445,11 @@ def equip_grading(request):
 
         return HttpResponse(total, status=200)
 
-
-
 @csrf_exempt
 def user_to_waitinglist(request):
     #李同学请看，在这个函数你会收到三个参数1，设备id，2用户名，3用户id 将其一次排入waitinglist 中 并保证申请过的id无法在申请
     #最好也能实现一下 waitinglist的删除
-    print("this is post",request)
+    print("this is user tp witlist ",request)
     try:
         data = JSONParser().parse(request)
     except:
@@ -426,9 +460,6 @@ def user_to_waitinglist(request):
 
     except Equip.DoesNotExist:
         return HttpResponse("The equip you want to operate does not exist.", status=200)
-
-
-
 
     date_unavailable_list = []      # 已占用的日期列表：形式['2020/7/8', '2020/7/9', ]
     if request.method == 'POST': #有效性
@@ -533,31 +564,47 @@ def user_to_waitinglist(request):
         print('fuck')
         if serializer.is_valid():
             print('to here fianl')
-            serializer.save()
+            id=serializer.save()
+            print( id.id,"this is motha id")
+
             query_set = LIST.objects.all()
             print('a',len(query_set))
             serializer =WaitingSerializer(query_set, many=True)
             print('ddd',serializer.data)
-            obj=LIST.objects.get(id=len(query_set))
+            obj=LIST.objects.get(id=id.id)
             print(obj)
             equip_item.waiting_list.add(obj)
             print('to here ADD SUCCESS',obj)
 
 
-    return JsonResponse({"sucess":"?"})
+        return JsonResponse({"sucess":serializer.data})
 
-    if request.method == 'DELETE':
+
+@csrf_exempt
+def cancel_waitlist(request):
+    if request.method == 'POST':
         try:
-            wl_item = equip.waiting_list.get(user_id=user_id, equip_id=equip_id)
+            data = JSONParser().parse(request)
+            equip_item = Equip.objects.get(id=data['equipid'])
+            reservations = equip_item.waiting_list.all()
+
+            for reservation in reservations:
+                print('??')
+                serial = WaitingSerializer(reservation)
+                print('ak')
+                print(serial.data)
+                if(serial.data['user_id']==data['user_id']):
+                    print(' == ')
+                    obj = LIST.objects.get(id=serial.data['id'])
+                    print(obj)
+                    equip_item.waiting_list.remove(obj)  # ADD
+                    print('delete success')
         except LIST.DoesNotExist:
             return HttpResponse("The waiting record you want to delete does not exist.", status=200)
-        wl_item.delete()
         return HttpResponse("Quit from waiting list successfully.", status=200)
 
 
     return JsonResponse({}, status=400)
-
-
 
 @csrf_exempt
 def super_view_apply_equip_info(request):
@@ -574,4 +621,28 @@ def super_view_apply_equip_info(request):
         else:
             return HttpResponse({"error":"you are not super user"}, status=500)
 
+
+@csrf_exempt
+def super_view_equip_data_analyze(request):
+
+    if request.method == 'GET':
+        query_set = LIST.objects.all()
+        serializers = WaitingSerializer(query_set, many=True)
+        for reservation in serializers:
+            print('a')
+        # print(reservation.id,reservation.na)
+
+        return JsonResponse({"list":"D"}, status=200)
+
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        if (check_password('0000', data['token'])):
+            query_set = Equip.objects.all()
+            serializer = EquipStatusSerializer(query_set, many=True)
+            print(serializer.data)
+            temp = sorted(serializer.data, key=lambda t: t['is_apply'], reverse=True)
+            return JsonResponse({"list": list(json.loads(json.dumps(temp)))}, status=200)
+
+        else:
+            return HttpResponse({"error": "you are not super user"}, status=500)
 

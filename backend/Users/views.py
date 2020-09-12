@@ -239,7 +239,12 @@ def update_user_status(request):
         print(data)
         record = Users.objects.get(userid=data['userid'])
         UserStatusSerial().update_rent_status(record, data['is_rent'],data['rent_status'])
-        print( 'fuckaaa', Users.objects.get(userid=data['userid']).is_rent,Users.objects.get(userid=data['userid']).rent_status)
+        try:
+            UserStatusSerial().update_rent_date(record, data['rent_start'], data['rent_end'])
+            UserStatusSerial().user_rent_apply(record,data['equip_id'],data['equip_name'])
+        except:
+             print("no start")
+
         return JsonResponse({'update':"success"}, safe=False)
 
 @csrf_exempt
@@ -249,6 +254,30 @@ def  user_return_apply(request):
         data = JSONParser().parse(request)
         record = Users.objects.get(userid=data['userid'])
         UserStatusSerial().rent_status_to2(record,data['equipid'])
+
+
+
+
+def allow_return(request):
+    #
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        the_user = Users.objects.get(userid=data['userid'])
+        #UserStatusSerial().allow_return(the_user)
+
+        data = {"equip_name": data['equip_name'], "equip_id": data['equip_id'],
+                "borrow_from":the_user.rent_start, "borrow_till": data['rent_exp'],}
+        print("this is data", data)
+        serializer = HISSerialize(data=data)
+        if serializer.is_valid():
+            id = serializer.save()
+            query_set = HIS.objects.all()
+            obj = HIS.objects.get(id=id.id)
+            print(obj)
+            the_user.history_e.add(obj)
+            print('to here ADD SUCCESS', obj)
+
+
 
 @csrf_exempt
 def  user_rent_apply(request):
@@ -277,19 +306,28 @@ def  user_get_your_status(request):
     if request.method == 'POST':
         obj = Users.objects.get(userid=request.body.decode("utf-8"))
         serializer = UsersSerializer(obj)
-        print(obj)
+
         start_date = timezone.now().date()
         end_date = start_date - timedelta(days=1)
 
         if  serializer.data['is_rent']:
-            exp_day = parse_datetime(serializer.data['created_at']).date()
+            print(serializer.data)
+            print(serializer.data['rent_end'])
+            exp_day = datetime.strptime(serializer.data['rent_end'], '%Y/%m/%d').date()
+            start_day = datetime.strptime(serializer.data['rent_start'], '%Y/%m/%d').date()
+            print(exp_day)
             today = timezone.now().date()
-            print((exp_day - today).days)
+            till_startday=(today-start_day).days
+            print(till_startday)
             day=(exp_day - today).days
-            print(serializer.data['created_at'])
-            return JsonResponse({"days":day ,"info":serializer.data}, status=200)
+            if till_startday<0:
+                return JsonResponse({"days": -till_startday, "info": serializer.data}, status=200)
+            elif day>=0:
+                return JsonResponse({"days":day ,"info":serializer.data}, status=200)
+            else:
+                day=day+0.3
+                return JsonResponse({"days":-day ,"info":serializer.data}, status=200)
         else:
-
             return JsonResponse({"days":"availabe","info":serializer.data}, status=200)
 
 
@@ -456,3 +494,19 @@ def user_verified(request, token):
     # return render(request, 'common/success.html', {'reason': message})
 
     return HttpResponse(message, status=400)
+
+
+@csrf_exempt
+def super_view_equip_data_analyze(request):
+
+    if request.method == 'GET':
+        query_set = HIS.objects.all()
+        serializers = HISSerialize(query_set, many=True)
+        for reservation in serializers:
+            print(reservation.equip_id,reservation.equip_id,reservation.borrow_from,reservation.borrow_till)
+        # print(reservation.id,reservation.na)
+
+        return JsonResponse({"list":"D"}, status=200)
+
+
+

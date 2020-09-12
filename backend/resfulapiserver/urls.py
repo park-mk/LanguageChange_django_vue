@@ -17,6 +17,7 @@ urlpatterns = [
     url('api/history_to_user',views.history_to_user),
     path('api/delete/', views.super_del_user),
     path('api/render',views.user_get_your_status),
+    path('api/allow_return', views.allow_return),
     path('api/apply_userinfo/', views.super_view_rent_user_info),
     url('api/login/', views.login),
     url('api/register/',views.register_mail_post),

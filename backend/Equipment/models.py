@@ -7,6 +7,7 @@ class Equip(models.Model):
     name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=False)
     is_rent = models.BooleanField(default=False)
+    is_return =models.BooleanField(default=False)
     is_on = models.BooleanField(default=False)
     description = models.CharField(default='',max_length=50)
     location = models.CharField(default='',max_length=50)

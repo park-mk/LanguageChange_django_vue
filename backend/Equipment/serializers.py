@@ -52,11 +52,29 @@ class EquipSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+    def return_equip(self,instance):
+        instance.is_return=True
+        instance.save()
+        print('return is true')
+        return instance
+
+    def return_equip_check(self,instance):
+        instance.is_return=False
+        instance.is_rent=False
+        instance.save()
+        return instance
+
+
 
 class EquipRentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equip
         fields = ['id','name','phone_number','is_apply','is_rent','rent_user_name','provider_id']
+
+    def is_rent(self,instance):
+        instance.is_rent=True
+        instance.save()
+        return instance
 
 class EquipRentUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -72,7 +90,7 @@ class EquipONSerializer(serializers.ModelSerializer):
 class EquipStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equip
-        fields = ['id','name','phone_number','is_apply','is_on','is_active','waiting_list','history_list','is_rent','provider_id','location','description','grade_list']
+        fields = ['id','name','phone_number','is_apply','is_on','is_active','waiting_list','history_list','is_rent','provider_id','location','description','grade_list','is_return']
 
     def on_status(self, instance):
         instance.is_on = True

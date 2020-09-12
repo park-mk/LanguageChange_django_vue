@@ -8,6 +8,7 @@ urlpatterns = [
     path('off/<str:id>', views.provider_off_equip),
     path('equip/<int:id>/', views.equip),
     path('deny/', views.deny_equip),
+    path('cancel_waitlist/', views.cancel_waitlist),
     path('waitlist/',views.user_to_waitinglist),
     path('rentlist/', views.equip_rent_list),
     path('rentlist/<str:id>', views.equip_rent_list_specific),
@@ -19,7 +20,8 @@ urlpatterns = [
     path('equiplist/',views.equip_list),
     path('equiponlist/',views.equip_on_list),
     path('description/',views.super_view_apply_equip_info),
-
+    path('return_equip/',views.return_equip),
+    path('return_equip_check/',views.return_equip_check),
     path('view_wait/',views.equip_waiting_list),
     path('wait_allow/',views.super_allow_equip_rent),
     path('equip_grade/', views.equip_grading),

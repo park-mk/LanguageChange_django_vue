@@ -21,8 +21,8 @@ class Users(models.Model):
     apply_equip_id=models.IntegerField(default=0)
     apply_equip_name = models.CharField(max_length=100,default=' ')
     noti_count=models.IntegerField(default=0)
-    rent_start=models.DateTimeField(null=True, blank=True)
-    rent_end=models.DateTimeField(null=True, blank=True)
+    rent_start=models.CharField(default=' ',max_length=100)
+    rent_end=models.CharField(default=' ',max_length=100)
     waiting_list=models.ManyToManyField('LIST',blank=True)
     history_e = models.ManyToManyField('HIS',blank=True)
     grade_list= models.ManyToManyField('GRADE', blank=True)
@@ -52,8 +52,8 @@ class LIST(models.Model):
 
 
 class HIS(models.Model):
-    name = models.CharField(max_length=30)
-    userid = models.CharField(max_length=30)
+    equip_name = models.CharField(max_length=30)
+    equip_id=models.IntegerField(default=0)
     borrow_from =models.DateTimeField(blank=True)
     borrow_til = models.DateTimeField(blank=True)
 
