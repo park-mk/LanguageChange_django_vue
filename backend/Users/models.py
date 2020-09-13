@@ -18,6 +18,7 @@ class Users(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     reason_a= models.CharField(max_length=3000,default='')
+    reason_pro=models.CharField(max_length=3000,default='')
     apply_equip_id=models.IntegerField(default=0)
     apply_equip_name = models.CharField(max_length=100,default=' ')
     noti_count=models.IntegerField(default=0)
@@ -54,11 +55,10 @@ class LIST(models.Model):
 class HIS(models.Model):
     equip_name = models.CharField(max_length=30)
     equip_id=models.IntegerField(default=0)
-    borrow_from =models.DateTimeField(blank=True)
-    borrow_til = models.DateTimeField(blank=True)
+    borrow_from =models.CharField(max_length=30,default=' ')
+    borrow_till =models.CharField(max_length=30,default=' ')
 
-    def __str__(self):
-        return self.name
+
 
 
 class GRADE(models.Model):

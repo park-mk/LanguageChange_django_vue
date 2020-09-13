@@ -14,6 +14,12 @@ class UsersSerializer(serializers.ModelSerializer):
         print('to herer')
         return instance
 
+    def user_apply_status_up(self,instance,reason):
+        instance.reason_pro=reason
+        instance.is_apply_a=True
+        instance.save()
+        return instance
+
 
 
 

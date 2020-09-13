@@ -64,6 +64,20 @@ class EquipSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+    def is_rent_up(self ,instance,is_rent):
+        instance.is_rent=is_rent
+        instance.save()
+        return instance
+
+    def is_return_up(self ,instance,is_return):
+        instance.is_return=is_return
+        instance.save()
+        return instance
+
+    def is_gelai_up(self, instance, is_gelai):
+        instance.is_gelai = is_gelai
+        instance.save()
+        return instance
 
 
 class EquipRentSerializer(serializers.ModelSerializer):
@@ -90,7 +104,7 @@ class EquipONSerializer(serializers.ModelSerializer):
 class EquipStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equip
-        fields = ['id','name','phone_number','is_apply','is_on','is_active','waiting_list','history_list','is_rent','provider_id','location','description','grade_list','is_return']
+        fields = '__all__'
 
     def on_status(self, instance):
         instance.is_on = True
@@ -117,6 +131,12 @@ class EquipStatusSerializer(serializers.ModelSerializer):
         instance.is_rent=True
         instance.save()
         return instance
+
+    def is_apply_to(self,instance,tof):
+        instance.is_apply=tof
+        instance.save()
+        return instance
+
 
 
 class EquipDesSerializer(serializers.ModelSerializer):

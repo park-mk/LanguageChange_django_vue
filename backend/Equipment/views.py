@@ -25,7 +25,10 @@ def equip_list(request):
         if True:#(check_password('0000', request.body.decode("utf-8"))):
             query_set = Equip.objects.all()
             serializer =EquipStatusSerializer(query_set, many=True)
-            print(serializer.data)
+            for query in query_set:
+                se =EquipStatusSerializer(query)
+                EquipStatusSerializer().is_apply_to(query,wait_list_check(se.data['id']))
+                print(se.data)
             temp = sorted(serializer.data, key=lambda t: t['is_apply'], reverse=True)
 
             return JsonResponse({"list":list(json.loads(json.dumps(temp)))}, status=200)
@@ -50,9 +53,11 @@ def equip_list(request):
         print('provider come to check his equip')
         if True:  # (check_password('0000', request.body.decode("utf-8"))):
             query_set = Equip.objects.all()
-
             serializer = EquipStatusSerializer(query_set, many=True)
-
+            for query in query_set:
+                se = EquipStatusSerializer(query)
+                EquipStatusSerializer().is_apply_to(query, wait_list_check(se.data['id']))
+                print(se.data)
             temp = sorted(serializer.data, key=lambda t: t['is_rent'], reverse=True)
 
             new_list = [dd for dd in temp if dd['provider_id'] == request.body.decode("utf-8")]
@@ -65,6 +70,46 @@ def equip_list(request):
 
 @csrf_exempt
 
+def wait_list_check(equip_id):
+
+
+
+        print('lets check ',equip_id)
+        equip_item = Equip.objects.get(id=equip_id)
+        # EquipSerializer().return_equip_check(equip_item)
+        reservations = equip_item.waiting_list.all()
+
+        for reservation in reservations:
+
+            serial = WaitingSerializer(reservation)
+            print(serial.data['apply_succes'])
+            if serial.data['apply_succes']==False:
+                return True
+                break
+
+        return False
+
+@csrf_exempt
+def wujun_is(request):
+    if request.method == 'GET':
+
+        data = JSONParser().parse(request)
+        equip_item = Equip.objects.get(id=data['equip_id'])
+        try:
+            EquipSerializer().is_rent_up( equip_item,data['is_rent'])
+        except:
+            pass
+        try:
+            EquipSerializer().is_rent_up(equip_item, data['is_return'])
+        except:
+            pass
+        try:
+            EquipSerializer().is_gelai_up(equip_item, data['is_gelai'])
+        except:
+            pass
+
+
+        return JsonResponse({"congra": 'tulation'}, status=200)
 
 
 @csrf_exempt
@@ -129,12 +174,12 @@ def return_equip_check(request):
         print(reservations.count(), 'resereve')
         print(reservations)
          #equip_item.waiting_list.remove(serial.data['id'])
-
+        print('this is data',data)
         for reservation in reservations:
             print('터져', reservation)
         for reservation in reservations:
             serial = WaitingSerializer(reservation)
-
+            print(data['user_id'])
             if serial['user_id'] ==data['user_id']:
                 equip_item.waiting_list.remove(serial.data['id'])
                 history = {"user_id": data['user_id'], "user_name": data['user_name'],
@@ -433,7 +478,7 @@ def equip_grading(request):
     if request.method == 'PATCH':
         query_set = GRADE.objects.all()
         serializer = GRADESerialize(query_set, many=True)
-        obj = GRADE.objects.get(id=len(query_set))
+
         print("dd",equip_item.grade_list.all())
         totals=equip_item.grade_list.all()
         total=0

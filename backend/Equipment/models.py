@@ -8,6 +8,7 @@ class Equip(models.Model):
     is_active = models.BooleanField(default=False)
     is_rent = models.BooleanField(default=False)
     is_return =models.BooleanField(default=False)
+    is_gelai=models.IntegerField(default=0)
     is_on = models.BooleanField(default=False)
     description = models.CharField(default='',max_length=50)
     location = models.CharField(default='',max_length=50)
@@ -56,8 +57,8 @@ class HIS(models.Model):
 
     user_id = models.CharField(max_length=30)
     user_name = models.CharField(max_length=30)
-    rent_start = models.DateTimeField(null=True, blank=True)
-    rent_exp = models.DateTimeField(null=True, blank=True)
+    rent_start = models.CharField(max_length=30,default=' ')
+    rent_exp =models.CharField(max_length=30,default=' ')
     reason = models.CharField(max_length=300,default=' ')
 
 
@@ -66,7 +67,7 @@ class GRADE(models.Model):
     user_id = models.CharField(max_length=30)
     user_name = models.CharField(max_length=30)
     comment=models.CharField(max_length=300)
-    grade=models.IntegerField(default=0)
+    grade=models.FloatField(default=0)
 
 
     def __str__(self):

@@ -145,6 +145,28 @@ def super_update_user(request):
                 return HttpResponse({"error": "you are not super user"}, status=500)
 
 
+@csrf_exempt
+def user_apply_status_up(request):
+
+    if request.method == 'POST':
+        if True:
+            data = JSONParser().parse(request)
+            print(data)
+
+            search_name = data['userid']
+            try:
+                obj = Users.objects.get(userid=data['userid'])
+            except:
+                return JsonResponse({'status': 'false', 'message': "no such user"}, status=500)
+
+            record = Users.objects.get(userid=data['userid'])
+            UsersSerializer().user_apply_status_up(record,data['reason_pro'])
+            return JsonResponse({'up': ' 병시나'}, status=201)
+
+        else:
+            return HttpResponse({"error": "you are not super user"}, status=500)
+
+
 
 
 @csrf_exempt
@@ -257,7 +279,7 @@ def  user_return_apply(request):
 
 
 
-
+@csrf_exempt
 def allow_return(request):
     #
     if request.method == 'POST':
@@ -266,7 +288,8 @@ def allow_return(request):
         #UserStatusSerial().allow_return(the_user)
 
         data = {"equip_name": data['equip_name'], "equip_id": data['equip_id'],
-                "borrow_from":the_user.rent_start, "borrow_till": data['rent_exp'],}
+                #"borrow_from":the_user.rent_start
+                "borrow_from": data['rent_start'] , "borrow_till": data['rent_exp'],}
         print("this is data", data)
         serializer = HISSerialize(data=data)
         if serializer.is_valid():
@@ -276,7 +299,10 @@ def allow_return(request):
             print(obj)
             the_user.history_e.add(obj)
             print('to here ADD SUCCESS', obj)
-
+        else:
+            print(serializer.errors)
+            return JsonResponse({'update': "success"}, safe=False)
+    return JsonResponse({'update': "nope"}, safe=False)
 
 
 @csrf_exempt
@@ -497,16 +523,73 @@ def user_verified(request, token):
 
 
 @csrf_exempt
-def super_view_equip_data_analyze(request):
+def data_ana(request):
 
     if request.method == 'GET':
-        query_set = HIS.objects.all()
-        serializers = HISSerialize(query_set, many=True)
-        for reservation in serializers:
-            print(reservation.equip_id,reservation.equip_id,reservation.borrow_from,reservation.borrow_till)
-        # print(reservation.id,reservation.na)
+        try:
+            query_set = HIS.objects.all()
+            historys =HISSerialize(query_set, many=True)
+            print(historys.data)
+            data={}
+            result={}
+            print(type(data))
+            for history in  query_set:
+                print(history.equip_id)
+                start_day = datetime.strptime(history.borrow_from, '%Y/%m/%d').date()
+                print('??')
+                exp_day = datetime.strptime(history.borrow_till, '%Y/%m/%d').date()
+                day = (exp_day - start_day).days
+                print('??')
+                if history.equip_id in  data.keys():
+                    data[history.equip_id].append(day)
+                else:
+                    print('?')
+                    dict = {history.equip_id: [day]}
+                    data.update(dict)
+                    print('kk')
+            for key ,value in data.items():
+                print(str(key))
+                print(sum(value) / len(value))
+                dict={key:sum(value) / len(value)}
+                result.update(dict)
+        except:
+            return JsonResponse({key:result[key] for key in sorted(result.keys())}, status=200)
 
-        return JsonResponse({"list":"D"}, status=200)
+    if request.method == 'POST':
+        try:
+            query_set = HIS.objects.all()
+            historys = HISSerialize(query_set, many=True)
+            print(historys.data)
+            data = {}
+            result = {}
+            print(type(data))
+            for history in query_set:
+                print(history.equip_id)
+                start_day = datetime.strptime(history.borrow_from, '%Y/%m/%d').date()
+                print('??')
+                exp_day = datetime.strptime(history.borrow_till, '%Y/%m/%d').date()
+                day = (exp_day - start_day).days
+                print('??')
+                if history.equip_id in data.keys():
+                    data[history.equip_id].append(day)
+                else:
+                    print('?')
+                    dict = {history.equip_id: [day]}
+                    data.update(dict)
+                    print('kk')
+            for key, value in data.items():
+                print(str(key))
+                print(sum(value) / len(value))
+                dict = {key: len(value)}
+                result.update(dict)
 
+            return JsonResponse({key: result[key] for key in sorted(result.keys())}, status=200)
+
+
+        except:
+
+
+            return JsonResponse({"list":"D"}, status=200)
+    return JsonResponse({"list": "D"}, status=200)
 
 

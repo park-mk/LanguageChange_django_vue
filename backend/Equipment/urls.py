@@ -23,6 +23,7 @@ urlpatterns = [
     path('return_equip/',views.return_equip),
     path('return_equip_check/',views.return_equip_check),
     path('view_wait/',views.equip_waiting_list),
+    path('wujun_is/', views.wujun_is),
     path('wait_allow/',views.super_allow_equip_rent),
     path('equip_grade/', views.equip_grading),
 
