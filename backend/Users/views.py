@@ -249,6 +249,7 @@ def send_user_status(request):
         obj = Users.objects.get(userid=request.body.decode("utf-8"))
         #print(JSONParser(request))
        # serializer = UsersSerializer(obj)
+
         return JsonResponse({'is_staff':obj.is_staff,'rent_status':obj.rent_status,'is_rent':obj.is_rent}, safe=False)
 
 
@@ -277,6 +278,28 @@ def  user_return_apply(request):
         record = Users.objects.get(userid=data['userid'])
         UserStatusSerial().rent_status_to2(record,data['equipid'])
 
+@csrf_exempt
+def user_history(request):
+
+
+        if request.method == 'POST':
+            print('history')
+
+            try:
+                data = JSONParser().parse(request)
+            except:
+                return HttpResponse("deny mounted .", status=200)
+
+
+            the_user = Users.objects.get(userid=data['user_id'])
+            reservations = the_user.history_e.all()
+            result = list([])
+            print('a')
+            query_set = the_user.history_e.all()
+            print(query_set)
+            serializer = HISSerialize(query_set, many=True)
+
+            return JsonResponse({"list": list(json.loads(json.dumps(serializer.data)))}, status=200)
 
 
 @csrf_exempt
@@ -347,7 +370,7 @@ def  user_get_your_status(request):
             print(till_startday)
             day=(exp_day - today).days
             if till_startday<0:
-                return JsonResponse({"days": -till_startday, "info": serializer.data}, status=200)
+                return JsonResponse({"days": till_startday, "info": serializer.data}, status=200)
             elif day>=0:
                 return JsonResponse({"days":day ,"info":serializer.data}, status=200)
             else:
@@ -514,6 +537,7 @@ def user_verified(request, token):
     except Users.DoesNotExist:
         return HttpResponse(u"对不起，您所验证的用户不存在，请重新注册", status=400)
     user.is_verified = True
+    user.is_active=True
     user.is_staff=3
     user.save()
     message = u'账号激活成功，可以进行登录</a>操作'

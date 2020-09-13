@@ -21,6 +21,7 @@ class Equip(models.Model):
     waiting_list = models.ManyToManyField('LIST', blank=True)
     history_list = models.ManyToManyField('HIS', blank=True)
     grade_list= models.ManyToManyField('GRADE', blank=True)
+
     # following user info
     reason = models.CharField(default='',max_length=200)
     rent_user_name = models.CharField(default='',max_length=50)

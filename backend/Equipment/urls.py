@@ -6,6 +6,7 @@ urlpatterns = [
     path('update/<str:id>', views.provider_update_equip),
     path('on/<str:id>',views.provider_on_equip),
     path('off/<str:id>', views.provider_off_equip),
+    path('super_on_equip/<str:id>',views.super_on_equip),
     path('equip/<int:id>/', views.equip),
     path('deny/', views.deny_equip),
     path('cancel_waitlist/', views.cancel_waitlist),

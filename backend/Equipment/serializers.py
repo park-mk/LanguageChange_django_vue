@@ -34,6 +34,7 @@ class EquipSerializer(serializers.ModelSerializer):
     def off(self, instance):
         instance.is_on = False
         instance.is_apply = False
+        instance.is_active=False
         instance.save()
         return instance
 

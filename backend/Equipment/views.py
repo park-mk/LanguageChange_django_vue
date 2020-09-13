@@ -91,16 +91,17 @@ def wait_list_check(equip_id):
 
 @csrf_exempt
 def wujun_is(request):
-    if request.method == 'GET':
+    if request.method == 'POST':
 
         data = JSONParser().parse(request)
         equip_item = Equip.objects.get(id=data['equip_id'])
+        print('wujun is ',data)
         try:
             EquipSerializer().is_rent_up( equip_item,data['is_rent'])
         except:
             pass
         try:
-            EquipSerializer().is_rent_up(equip_item, data['is_return'])
+            EquipSerializer().is_return_up(equip_item, data['is_return'])
         except:
             pass
         try:
@@ -179,12 +180,15 @@ def return_equip_check(request):
             print('터져', reservation)
         for reservation in reservations:
             serial = WaitingSerializer(reservation)
-            print(data['user_id'])
-            if serial['user_id'] ==data['user_id']:
+            print(data['user_id'],serial.data)
+            if serial.data['user_id'] ==data['user_id']:
+                print('we shoud go to history bitch ')
+                obj=LIST.objects.get(id=serial.data['id'])
+                obj.delete()
                 equip_item.waiting_list.remove(serial.data['id'])
                 history = {"user_id": data['user_id'], "user_name": data['user_name'],
-                           "rent_start": data['rent_start'],
-                           "rent_exp":data['rent_exp'], "reason": serial.data['reason']}
+                           "rent_start": data['borrow_from'],
+                           "rent_exp":data['borrow_till'], "reason": serial.data['reason']}
                 h_serializer = HISSerialize(data=history)
                 if h_serializer.is_valid():
                     id=h_serializer.save()
@@ -354,12 +358,6 @@ def super_on_equip(request,id): #ehfdkdhk
         EquipSerializer().activate(record)
         return JsonResponse({'SUCCESS':'SUCCESS'}, status=201)
 
-def super_on_equip(request,id): #ehfdkdhk
-    if request.method == 'GET':
-        record = Equip.objects.get(id=id)
-        print('on')
-        EquipSerializer().unactivate(record)
-        return JsonResponse({'SUCCESS':'SUCCESS'}, status=201)
 
 
 

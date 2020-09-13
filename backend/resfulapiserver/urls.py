@@ -20,7 +20,7 @@ urlpatterns = [
     path('api/render',views.user_get_your_status),
     path('api/allow_return/', views.allow_return),
     path('api/apply_userinfo/', views.super_view_rent_user_info),
-
+    path('api/user_history/', views.user_history),
     path('api/data_ana/', views.data_ana),
     url('api/login/', views.login),
     url('api/register/',views.register_mail_post),
